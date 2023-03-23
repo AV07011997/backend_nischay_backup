@@ -90,31 +90,31 @@ def home_page(request):
     import boto3
     print("Okay")
     bucket = 'digitizedfiles'
-    s3 = boto3.resource('s3')
-    objects_files = s3.Bucket(bucket).objects.all()
-    print(objects_files)
+    # s3 = boto3.resource('s3')
+    # objects_files = s3.Bucket(bucket).objects.all()
+    # print(objects_files)
     global customer_detail
     global cust
 
-    def status_all():
+    # def status_all():
+    #
+    #     digitized_file_status.objects.all().delete()
+    #
+    #     for obj in objects_files:
+    #         file_name = obj.key
+    #         lid = obj.key.split('_')[0]
+    #         if obj.key.split('_')[-1] == 'b.csv':
+    #             file_type = 'bank'
+    #         if obj.key.split('_')[-1] == 'i.csv':
+    #             file_type = 'itr'
+    #
+    #         if obj.key.split('_')[-1] != 'i.csv' and obj.key.split('_')[-1] != 'b.csv':
+    #             file_type = 'others'
+    #
+    #         p = digitized_file_status(lead_id=lid, file_name=file_name, type=file_type)
+    #         p.save()
 
-        digitized_file_status.objects.all().delete()
-
-        for obj in objects_files:
-            file_name = obj.key
-            lid = obj.key.split('_')[0]
-            if obj.key.split('_')[-1] == 'b.csv':
-                file_type = 'bank'
-            if obj.key.split('_')[-1] == 'i.csv':
-                file_type = 'itr'
-
-            if obj.key.split('_')[-1] != 'i.csv' and obj.key.split('_')[-1] != 'b.csv':
-                file_type = 'others'
-
-            p = digitized_file_status(lead_id=lid, file_name=file_name, type=file_type)
-            p.save()
-
-    status_all()
+    # status_all()
 
     text = request.GET.get("search")
     request.session["stext"] = text
@@ -190,7 +190,7 @@ def home_page(request):
         # customer_detail['bank_uploaded']=customer_detail.count('lead_id')
         # cust = customer_detail["lead_id"].groupby('lead_id').value_counts("lead_id")
 
-        ## group by customer_detail and get sum of leadid
+        # group by customer_detail and get sum of leadid
 
     except Exception as e:
         print("1")
@@ -249,11 +249,11 @@ def home_page(request):
         print("7")
         print(e)
 
-    try:
-        customer_detail['bank_uploaded'] = customer_detail['bank_uploaded'].astype('int64')
-    except Exception as e:
-        print("8")
-        print(e)
+    # try:
+    #     customer_detail['bank_uploaded'] = customer_detail['bank_uploaded'].astype('int64')
+    # except Exception as e:
+    #     print("8")
+    #     print(e)
 
     try:
         customer_detail['bank_download'] = customer_detail['bank_download'].astype('int64')
@@ -261,39 +261,39 @@ def home_page(request):
         print("9")
         print(e)
 
-    try:
-        customer_detail['bank_download_ready'] = customer_detail['bank_download_ready'].astype('int64')
-    except:
-        pass
+    # try:
+    #     customer_detail['bank_download_ready'] = customer_detail['bank_download_ready'].astype('int64')
+    # except:
+    #     pass
 
     customer_detail = customer_detail.drop_duplicates().reset_index(drop=True)
 
     customer_detail = customer_detail.sort_values('lead_id')
 
-    if 'bank_download_ready' not in customer_detail:
-        customer_detail['bank_download_ready'] = 0
+    # if 'bank_download_ready' not in customer_detail:
+    customer_detail['bank_download_ready'] = 0
 
     ##below lambda and loop statements need some bug fixing
-    customer_detail['bank_download_ready'] = customer_detail['bank_download_ready'].apply(
-        lambda x: int(x) if pd.notnull(x) else 0)
-    customer_detail['bank_uploaded'] = customer_detail['bank_uploaded'].apply(lambda x: int(x) if pd.notnull(x) else 0)
-    customer_detail['bank_download'] = customer_detail['bank_download'].apply(lambda x: int(x) if pd.notnull(x) else 0)
+    #customer_detail['bank_download_ready'] = customer_detail['bank_download_ready'].apply(
+      #  lambda x: int(x) if pd.notnull(x) else 0)
+    # customer_detail['bank_uploaded'] = customer_detail['bank_uploaded'].apply(lambda x: int(x) if pd.notnull(x) else 0)
+    # customer_detail['bank_download'] = customer_detail['bank_download'].apply(lambda x: int(x) if pd.notnull(x) else 0)
 
-    customer_detail = customer_detail.sort_values(['creation_time'], ascending=[False])
-    customer_detail['creation_time'] = customer_detail['creation_time'].dt.strftime('%B %d, %Y, %r')
-    customer_detail['bureau_creation_time'] = customer_detail['bureau_creation_time'].dt.strftime('%B %d, %Y, %r')
+    #customer_detail = customer_detail.sort_values(['creation_time'], ascending=[False])
+    #customer_detail['creation_time'] = customer_detail['creation_time'].dt.strftime('%B %d, %Y, %r')
+   # customer_detail['bureau_creation_time'] = customer_detail['bureau_creation_time'].dt.strftime('%B %d, %Y, %r')
 
-    customer_detail['bureau_updated'] = ''
-    i = 0
-    for x in bureau_updated_data['Customer_Id']:
-        for i in range(len(customer_detail)):
-            if x == customer_detail['customer_id'][i]:
-                customer_detail['bureau_updated'][i] = "Yes"
+    #customer_detail['bureau_updated'] = ''
+    # i = 0
+    # for x in bureau_updated_data['Customer_Id']:
+    #     for i in range(len(customer_detail)):
+    #         if x == customer_detail['customer_id'][i]:
+    #             customer_detail['bureau_updated'][i] = "Yes"
 
     ## did this to pass some dummy data as of now
-    # customer_detail['bureau_updated'] = "Yes"
-    # customer_detail['bank_download'] = "1"
-    # customer_detail['bank_download_ready'] = "0"
+    customer_detail['bureau_updated'] = "Yes"
+    customer_detail['bank_download'] = "1"
+    customer_detail['bank_download_ready'] = "0"
 
     #######Adding to get correct time#######
     # customer_detail['creation_time'] = customer_detail['creation_time'] + timedelta(hours=5, minutes=30)
